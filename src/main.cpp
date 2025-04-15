@@ -1,10 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <limits>
-#include <stdexpect>
 using namespace std;
-
-
 long long fibonacci(int n) {
     if (n <= 0) return -1;
     if (n == 1) return 0;
@@ -18,7 +15,6 @@ long long fibonacci(int n) {
     }
     return b;
 }
-
 int main(int argc, char *argv[]) {
     if(argc != 2){
     	cerr << "Использование:" << argv[0] << "<номер числа Фибоначчи>\n";
@@ -37,12 +33,11 @@ int main(int argc, char *argv[]) {
 
       cout << "Число Фибоначчи под номером " << n << ": " << result <<  endl;
       }catch(const invalid_argument&){
-      cerr << "Not a number\n"
-      return 1;
+        cerr << "Not a number\n";
+        return 1;
       }catch(const out_of_range&){
-      cerr << "Out of ragne"
-      return 1;
+        cerr << "Out of ragne";
+        return 1;
       }
-      
 return 0;
 }
