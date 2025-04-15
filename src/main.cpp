@@ -1,4 +1,5 @@
 #include <iostream>
+#incluse <cstdlib>
 #include <limits>
 
 using namespace std;
@@ -18,14 +19,13 @@ long long fibonacci(int n) {
     return b;
 }
 
-int main() {
-    int n;
-    cout << "Введите номер числа Фибоначчи (от 1 до 93): ";
-    
-    if (!(cin >> n)) {
-        cerr << "Ошибка: введено не число!\n";
-        return 1;
+int main(int argc, char *argv[]) {
+    if(argc != 2){
+    	cerr << "Использование:" << argv[0] << "<номер числа Фибоначчи>\n";
+    	return 1;
     }
+
+    int n = atoi(argv[1]);
 
     if (n < 1 || n > 93) {
         cerr << "Ошибка: число должно быть от 1 до 93!\n";
@@ -33,10 +33,6 @@ int main() {
     }
 
     long long result = fibonacci(n);
-    if (result == -1) {
-        cerr << "Ошибка: n должно быть положительным!\n";
-        return 1;
-    }
 
     cout << "Число Фибоначчи под номером " << n << ": " << result << endl;
     return 0;
