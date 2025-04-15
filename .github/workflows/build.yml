@@ -27,7 +27,8 @@ jobs:
       - name: Test
         run: |
           cd src
-          ./cicd/test.sh
+          chmod +x ../cicd/test.sh
+          ../cicd/test.sh
 
       - name: Create .deb package
         run: |
