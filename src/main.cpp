@@ -1,7 +1,7 @@
 #include <iostream>
-#incluse <cstdlib>
+#include <cstdlib>
 #include <limits>
-
+#include <stdexpect>
 using namespace std;
 
 
@@ -25,15 +25,24 @@ int main(int argc, char *argv[]) {
     	return 1;
     }
 
-    int n = atoi(argv[1]);
+    try{
+      int n = atoi(argv[1]);
 
-    if (n < 1 || n > 93) {
-        cerr << "Ошибка: число должно быть от 1 до 93!\n";
-        return 1;
-    }
+      if (n < 1 || n > 93) {
+          cerr << "Ошибка: число должно быть от 1 до 93!\n";
+          return 1;
+      }
 
-    long long result = fibonacci(n);
+      long long result = fibonacci(n);
 
-    cout << "Число Фибоначчи под номером " << n << ": " << result << endl;
-    return 0;
+      cout << "Число Фибоначчи под номером " << n << ": " << result <<  endl;
+      }catch(const invalid_argument&){
+      cerr << "Not a number\n"
+      return 1;
+      }catch(const out_of_range&){
+      cerr << "Out of ragne"
+      return 1;
+      }
+      
+return 0;
 }
