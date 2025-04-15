@@ -1,0 +1,46 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential dh-make debhelper
+
+      - name: Build
+        run: |
+          cd src
+          make
+          mkdir -p ../usr/bin
+          cp fibonacci ../usr/bin/
+
+      - name: Test
+        run: |
+          cd src
+          ./cicd/test.sh
+
+      - name: Create .deb package
+        run: |
+          mkdir -p debian/DEBIAN
+          cp DEBIAN/control debian/DEBIAN/
+          mkdir -p debian/usr/bin
+          cp usr/bin/fibonacci debian/usr/bin/
+          dpkg-deb --build debian
+          mkdir -p artifacts
+          mv debian.deb artifacts/fibonacci_1.0_amd64.deb
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: fibonacci-package
+          path: artifacts/
