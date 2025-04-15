@@ -1,0 +1,10 @@
+Package: fibonacci
+Version: 1.0
+Section:utils
+Priority:optional
+Architecture:amd64
+Depends:libc6 (>= 2.27)
+Maintainer:Calcifer-02.gmail.com
+Description:Fib
+
+
