@@ -50,11 +50,7 @@ jobs:
 
       - name: Run tests
         run: |
-          mkdir -p ./test_scripts
-          cp src/cicd/test.sh ./test_scripts/
-          chmod +x ./test_scripts/test.sh
-
-          cd ./test_scripts
+          cd ../cicd
           FIB_BIN="../../usr/bin/fibonacci" ./test.sh
   package:
     needs: [build, test]
