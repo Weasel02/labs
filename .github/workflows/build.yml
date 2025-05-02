@@ -10,62 +10,74 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential dh-make debhelper
 
-      - name: Build
+      - name: Build the program
         run: |
           cd src
           make
-          ls -l # Create
           mkdir -p ../usr/bin
           cp fibonacci ../usr/bin/
 
-      - name: Test
+      - name: Save build artifacts
         run: |
-          cd src
-          chmod +x ../cicd/test.sh
-          ../cicd/test.sh
+          mkdir -p artifacts/usr/bin
+          cp usr/bin/fibonacci artifacts/usr/bin/
+        # Сохраняем артефакты для использования в следующих этапах
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: artifacts/
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts
+          path: artifacts/
+
+      - name: Run tests
+        run: |
+          chmod +x artifacts/usr/bin/fibonacci
+          ./cicd/test.sh
+
+  package:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts
+          path: artifacts/
 
       - name: Create .deb package
         run: |
           mkdir -p debian/DEBIAN
           cp DEBIAN/control debian/DEBIAN/
           mkdir -p debian/usr/bin
-          cp usr/bin/fibonacci debian/usr/bin/
+          cp artifacts/usr/bin/fibonacci debian/usr/bin/
           dpkg-deb --build debian
           mkdir -p artifacts
           mv debian.deb artifacts/fibonacci_1.0_amd64.deb
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload final artifact
+        uses: actions/upload-artifact@v3
         with:
           name: fibonacci-package
           path: artifacts/
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Download .deb artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: fibonacci-package
-          path: artifacts/
-
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v2
-
-      - name: Build Docker image
-        run: |
-          cp artifacts/fibonacci_1.0_amd64.deb .
-          docker build -t fibonacci-app .
-
-      - name: Run container
-        run: |
-          docker run --rm fibonacci-app
