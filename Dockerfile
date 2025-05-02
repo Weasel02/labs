@@ -9,4 +9,4 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Запуск программы с параметром (n=10 для успешного завершения)
-CMD ["fibonacci"]
+ENTRYPOINT ["/usr/bin/fibonacci"]
