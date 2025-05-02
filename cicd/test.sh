@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FIB_BIN="../usr/bin/fibonacci"
+FIB_BIN="${GITHUB_WORKSPACE}/usr/bin/fibonacci"
 
 if ! $FIB_BIN 10 | grep -q 34; then
   echo "Test 1 Failed: Expected 34 for n=10"
