@@ -10,73 +10,77 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential dh-make debhelper
+          sudo apt-get install -y build-essential
 
-      - name: Build the program
+      - name: Build
         run: |
           cd src
           make
           mkdir -p ../usr/bin
           cp fibonacci ../usr/bin/
 
-      - name: Save build artifacts
-        run: |
-          mkdir -p artifacts/usr/bin
-          cp usr/bin/fibonacci artifacts/usr/bin/
-        # Сохраняем артефакты для использования в следующих этапах
-      - uses: actions/upload-artifact@v3
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
         with:
           name: build-artifacts
-          path: artifacts/
+          path: usr/bin/fibonacci
 
   test:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
+      
       - name: Download build artifacts
         uses: actions/download-artifact@v3
         with:
           name: build-artifacts
-          path: artifacts/
+          path: usr/bin/
+
+      - name: Make executable
+        run: chmod +x usr/bin/fibonacci
+
+      - name: Install test dependencies
+        run: sudo apt-get update && sudo apt-get install -y bats
 
       - name: Run tests
         run: |
-          chmod +x artifacts/usr/bin/fibonacci
+          cd src
           ./cicd/test.sh
 
   package:
-    needs: test
+    needs: [build, test]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
+      
       - name: Download build artifacts
         uses: actions/download-artifact@v3
         with:
           name: build-artifacts
-          path: artifacts/
+          path: usr/bin/
+
+      - name: Install packaging tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y dh-make debhelper
 
       - name: Create .deb package
         run: |
           mkdir -p debian/DEBIAN
           cp DEBIAN/control debian/DEBIAN/
           mkdir -p debian/usr/bin
-          cp artifacts/usr/bin/fibonacci debian/usr/bin/
+          cp usr/bin/fibonacci debian/usr/bin/
           dpkg-deb --build debian
           mkdir -p artifacts
           mv debian.deb artifacts/fibonacci_1.0_amd64.deb
 
-      - name: Upload final artifact
+      - name: Upload package artifact
         uses: actions/upload-artifact@v3
         with:
           name: fibonacci-package
