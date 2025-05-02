@@ -50,8 +50,8 @@ jobs:
 
       - name: Run tests
         run: |
-          cd ../cicd
-          FIB_BIN="../../usr/bin/fibonacci" ./test.sh
+          cd cicd
+          FIB_BIN="../usr/bin/fibonacci" ./test.sh
   package:
     needs: [build, test]
     runs-on: ubuntu-latest
